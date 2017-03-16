@@ -106,12 +106,6 @@ kill_daemons()
 
 start()
 {
-    if [ ! -f /var/lock/subsys/rdma ]; then
-	$log_cmd "rdma is not running: ibsrp depends on rdma"
-	echo_failure
-	exit 1
-    fi
-
     $log_cmd "Starting..."
 
     if [ -f $PID_DIR/opensm.pid ]; then

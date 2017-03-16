@@ -1,0 +1,5 @@
+Systemd service to start and stop opensm on IB ports used for ibsrp, aka
+Infiniband SCSI Remote Protocol.  This is one mechanism used to connect hosts
+to storage controllers like those sold by NetApp and DDN.
+
+Ported from pragmatic-infiniband-utilities-1.2.7-1.ch5.3

@@ -3,8 +3,7 @@ Description=ibsrp-sm management
 
 Requires=network-online.target
 After=network-online.target
-
-#ConditionPathExists=!/proc/sys/ibsrp-sm/
+Before=srpd.service
 
 [Service]
 Type=oneshot

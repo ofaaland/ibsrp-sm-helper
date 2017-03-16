@@ -1,0 +1,19 @@
+[Unit]
+Description=ibsrp-sm management
+
+Requires=network-online.target
+After=network-online.target
+
+#ConditionPathExists=!/proc/sys/ibsrp-sm/
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/sbin/modprobe ibsrp
+ExecStart=/usr/sbin/ibsrp-sm-helper start
+
+ExecStop=/usr/sbin/ibsrp-sm-helper stop
+ExecStop=/sbin/modprobe -r ibsrp
+
+[Install]
+WantedBy=multi-user.target

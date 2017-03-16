@@ -129,18 +129,6 @@ start()
     fi
 
 #---------------------------------------------------------------
-# Load the srp module
-#---------------------------------------------------------------
-
-    /sbin/modprobe ib_srp
-    if [ "$?" != "0" ]; then
-    	$log_cmd "kernel module \"ib_srp\" failed to load; ensure your IB card is working and check modprobe.conf for proper configuration"
-	echo_failure
-	echo ""
-	exit 1
-    fi
-
-#---------------------------------------------------------------
 # Run opensm on each port with SRP
 #---------------------------------------------------------------
     startOpenSMCA2CA
@@ -189,8 +177,6 @@ stop()
 {
     $log_cmd "Stopping..."
     kill_daemons
-    sleep 1
-    /sbin/modprobe -r ib_srp
     echo_success
 }
 

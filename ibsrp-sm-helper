@@ -102,13 +102,6 @@ kill_daemons()
         done
         rm -rf $PID_DIR/opensm.pid
     fi
-
-    if [ -f $PID_DIR/srp_daemon.pid ]; then
-        for pid in `cat $PID_DIR/srp_daemon.pid`; do
-            kill $pid
-        done
-        rm -rf $PID_DIR/srp_daemon.pid
-    fi
 }
 
 start()
@@ -121,7 +114,7 @@ start()
 
     $log_cmd "Starting..."
 
-    if [ -f $PID_DIR/opensm.pid ] || [ -f $PID_DIR/srp_daemon.pid ]; then
+    if [ -f $PID_DIR/opensm.pid ]; then
 	$log_cmd "ibsrp is already running..."
 	echo_failure
 	echo ""
@@ -129,44 +122,12 @@ start()
     fi
 
 #---------------------------------------------------------------
-# Run opensm on each port with SRP
+# Run opensm on each port if an SM isn't already running there
 #---------------------------------------------------------------
     startOpenSMCA2CA
     rc=$?
     if [ "$rc" != "0" ]; then
         exit $rc
-    fi
-
-
-#---------------------------------------------------------------
-# for each umad device, assign all srp targets detected on that
-# device to its port.
-#---------------------------------------------------------------
-
-    # wait for SRP target to become available.
-    sleep $SRP_SETTLE_TIMEOUT
-
-    num_targets_found=0
-    for a in /dev/infiniband/umad*
-      do
-      # check for SRP target on this port
-      srp_daemon -d $a -a -o 2> /dev/null | grep "IO Unit Info" > /dev/null 2>&1
-      if [ "$?" == "0" ]; then
-         let num_targets_found=$num_targets_found+1
-         $log_cmd "Starting srp_daemon on $a"
-         srp_daemon -e -n -d $a > /dev/null 2> /dev/null &
-         echo $! >> $PID_DIR/srp_daemon.pid
-      else
-         $log_cmd "srp target not found on $a... Skipping"
-      fi
-    done
-
-
-    if [ $num_targets_found != $IBSRP_NUM_TARGETS ]; then
-       $log_cmd "Failed to find all SRP target ports; $num_targets_found found; $IBSRP_NUM_TARGETS expected"
-       echo_failure
-       echo ""
-       exit 1
     fi
 
     echo_success
@@ -219,24 +180,6 @@ status()
     else
         echo "   not running"
     fi
-
-    echo "srp_daemon(s):"
-    if [ -f $PID_DIR/srp_daemon.pid ]; then
-        for pid in `cat $PID_DIR/srp_daemon.pid`; do
-            ps -f -p $pid > /dev/null 2> /dev/null
-            if [ "$?" == "0" ]; then
-                umad=`ps --no-headers -f -p $pid | sed -e "s/.*-d \(.*\)/\1/"`
-		base=`basename $umad`
-		device=`cat /sys/class/infiniband_mad/$base/ibdev`
-		port=`cat /sys/class/infiniband_mad/$base/port`
-                echo "   srp_daemon running on $device port $port ($umad)"
-            else
-                echo "   ERROR: srp_daemon (pid=$pid) failed"
-            fi
-        done
-    else
-        echo "   not running"
-    fi
 }
 
 if [ ! -d $PID_DIR ]; then
@@ -263,4 +206,3 @@ case "$1" in
 esac
 
 exit 0
-

@@ -21,22 +21,39 @@ Requires: systemd
 Requires: opensm
 
 %description
-IBSRP SM helper starts an SM on each port used for SRP, which is required for the ibsrp kernel driver to communicate with the attached storage controller.
+IBSRP SM starts an instance of OpenSM on each port used for SRP, which is
+required for the ibsrp kernel driver to communicate with the attached storage
+controller.
 
 %prep
 %setup -n %{name}-%{version}-%{release}
 
-#%install
+%install
 rm -rf %{buildroot}
 make install DESTDIR=$RPM_BUILD_ROOT
 
 %clean
 rm -rf %{buildroot}
 
+%post
+/bin/systemctl enable ibsrp-sm-helper > /dev/null 2>&1 ||:
+
+%preun
+if [ "$1" = 0 ]; then
+  systemctl stop ibsrp-sm-helper >/dev/null 2>&1 || :
+  systemctl disable ibsrp-sm-helper > /dev/null 2>&1 || :
+fi
+
+%postun
+if [ "$1" -ge 1 ]; then
+  systemctl try-restart ibsrp-sm-helper >/dev/null 2>&1 || :
+fi
+
 %files
 %defattr(-,root,root,-)
 %{_bindir}/ibsrp-sm-helper
 %{_mandir}/man8/ibsrp-sm-helper.8.gz
+%{_unitdir}/ibsrp-sm-helper.service
 
 %changelog
 * Thu Mar 16 2017 Olaf Faaland <faaland1@llnl.gov> - 0.1-0ch6

@@ -8,11 +8,11 @@ Before=srpd.service
 [Service]
 Type=oneshot
 RemainAfterExit=true
-ExecStart=/sbin/modprobe ibsrp
+ExecStart=/sbin/modprobe ib_srp
 ExecStart=/usr/sbin/ibsrp-sm-helper start
 
 ExecStop=/usr/sbin/ibsrp-sm-helper stop
-ExecStop=/sbin/modprobe -r ibsrp
+ExecStop=/sbin/modprobe -r ib_srp
 
 [Install]
 WantedBy=multi-user.target

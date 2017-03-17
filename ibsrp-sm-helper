@@ -1,19 +1,12 @@
 #!/bin/bash
 
-# chkconfig: 2345 50 05
-# description: Activates/Deactivates direct connected InfiniBand SRP Interfaces
-
-### BEGIN INIT INFO
-# Provides: ibsrp
-# Required-Start: $rdma
-# Default-Start: 2 3 4 5
-# Default-Stop: 0 1 6
-# Short-Description: Start/Stop the ibsrp service
-# Description: Start/Stop the ibsrp service
-#              ibsrp service identify's point to point IB links which need to
-#              have an SM running on them to function.  In addition it loads
-#              the srp_daemon to bring up SRP targets found on those fabrics.
-### END INIT INFO
+# Description: Start/Stop the ibsrp-sm-helper service
+#              ibsrp-sm-helper service identifies point to point IB links which
+#              need to have an SM running on them to function.
+#
+#              In order for this to be useful, srp_daemon must be started on
+#              on these ports, and the ib_srp kernel module must be loaded.
+#              See the srptools rpm for more information.
 
 . /etc/rc.d/init.d/functions
 
@@ -22,8 +15,6 @@ initsysconfdir=/etc/sysconfig
 log_cmd="logger -s -t ibsrp -p daemon.err"
 
 # Defaults for config paramenters
-IBSRP_NUM_TARGETS=1
-SRP_SETTLE_TIMEOUT=1
 OPENSM_SETTLE_TIMEOUT=1
 
 # pick up our conf file if available
@@ -36,16 +27,6 @@ fi
 
 LOG_DIR="/var/log/ibsrp"
 PID_DIR="/var/run/ibsrp"
-
-is_module()
-{
-    local RC
-
-    /sbin/lsmod | grep -w "$1" > /dev/null 2>&1
-    RC=$?
-
-    return $RC        
-}
 
 startOpenSMCA2CA()
 {
@@ -133,47 +114,6 @@ stop()
     $log_cmd "Stopping..."
     kill_daemons
     echo_success
-}
-
-status()
-{
-    echo -n "ib_srp module: "
-    is_module ib_srp
-    if [ "$?" == "0" ]; then
-        echo "loaded"
-	echo "   module parameters:"
-	for file in `ls /sys/module/ib_srp/parameters/*`; do
-            file=`basename $file`
-            echo "      $file: " `cat /sys/module/ib_srp/parameters/$file`
-	done
-    else
-        echo "ERROR: not loaded"
-    fi
-
-    echo "opensm(s):"
-    if [ -f $PID_DIR/opensm.pid ]; then
-        for pid in `cat $PID_DIR/opensm.pid`; do
-            ps -f -p $pid > /dev/null 2> /dev/null
-            if [ "$?" == "0" ]; then
-                guid=`ps --no-headers -f -p $pid | sed -e "s/.*-g \(.*\) -s.*/\1/"`
-		for d in `ls /sys/class/infiniband`; do
-		    for p in `ls /sys/class/infiniband/$d/ports`; do
-			g=`ibstat $d $p | grep "Port GUID" | sed -e "s/Port GUID: \(.*\)/\1/"`
-			if [ "$g" == "$guid" ]; then
-			    device=$d
-			    port=$p
-			    break
-			fi
-		    done
-		done
-                echo "   opensm running on $device port $port (guid=$guid)"
-            else
-                echo "   ERROR: opensm (pid=$pid) failed"
-            fi
-        done
-    else
-        echo "   not running"
-    fi
 }
 
 if [ ! -d $PID_DIR ]; then

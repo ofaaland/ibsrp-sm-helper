@@ -26,11 +26,17 @@ required for the ibsrp kernel driver to communicate with the attached storage
 controller.
 
 %prep
-%setup -n %{name}-%{version}-%{release}
+%setup -n %{name}-%{version}
 
 %install
 rm -rf %{buildroot}
-make install DESTDIR=$RPM_BUILD_ROOT
+mkdir %{buildroot}
+mkdir -p %{buildroot}/%{_sbindir}/
+mkdir -p %{buildroot}/%{_mandir}/man8/
+mkdir -p %{buildroot}/%{_unitdir}/
+cp -a ibsrp-sm-helper         %{buildroot}/%{_sbindir}/
+cp -a ibsrp-sm-helper.8.gz    %{buildroot}/%{_mandir}/man8/
+cp -a ibsrp-sm-helper.service %{buildroot}/%{_unitdir}/
 
 %clean
 rm -rf %{buildroot}
@@ -51,7 +57,7 @@ fi
 
 %files
 %defattr(-,root,root,-)
-%{_bindir}/ibsrp-sm-helper
+%{_sbindir}/ibsrp-sm-helper
 %{_mandir}/man8/ibsrp-sm-helper.8.gz
 %{_unitdir}/ibsrp-sm-helper.service
 

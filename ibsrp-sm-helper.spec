@@ -31,13 +31,12 @@ controller.
 
 %install
 rm -rf %{buildroot}
-mkdir %{buildroot}
-mkdir -p %{buildroot}/%{_sbindir}/
-mkdir -p %{buildroot}/%{_mandir}/man8/
-mkdir -p %{buildroot}/%{_unitdir}/
-cp -a ibsrp-sm-helper         %{buildroot}/%{_sbindir}/
-cp -a ibsrp-sm-helper.8.gz    %{buildroot}/%{_mandir}/man8/
-cp -a ibsrp-sm-helper.service %{buildroot}/%{_unitdir}/
+install -d %{buildroot}/%{_sbindir}/
+install -d %{buildroot}/%{_mandir}/man8/
+install -d %{buildroot}/%{_unitdir}/
+install -m 755 ibsrp-sm-helper         %{buildroot}/%{_sbindir}/
+install -m 644 ibsrp-sm-helper.8.gz    %{buildroot}/%{_mandir}/man8/
+install -m 644 ibsrp-sm-helper.service %{buildroot}/%{_unitdir}/
 
 %clean
 rm -rf %{buildroot}

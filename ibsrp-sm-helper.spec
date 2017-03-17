@@ -14,7 +14,7 @@ Group: System Environment/Base
 Summary: Helper to start an SM on IB interfaces using SRP
 URL: https://github.com/ofaaland/ibsrp-sm-helper
 Packager: Olaf Faaland <faaland1@llnl.gov>
-Source: %{name}-%{version}.tgz
+Source: %{name}-%{version}-%{release}.tgz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
 
 Requires: systemd
@@ -26,7 +26,7 @@ required for the ibsrp kernel driver to communicate with the attached storage
 controller.
 
 %prep
-%setup -n %{name}-%{version}
+%setup -n %{name}-%{version}-%{release}
 
 %install
 rm -rf %{buildroot}
@@ -64,3 +64,4 @@ fi
 %changelog
 * Thu Mar 16 2017 Olaf Faaland <faaland1@llnl.gov> - 0.1-0ch6
 - ibsrp-sm-helper initial version
+- adapted from pragmatic-infiniband-utilities written by Ira Weiny

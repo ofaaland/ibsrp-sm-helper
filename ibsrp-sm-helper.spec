@@ -9,6 +9,7 @@ Name: ibsrp-sm-helper
 Summary: IBSRP SM helper
 Version: 0.1
 Release: 0%{?dist}
+BuildArch: noarch
 License: GPLv2+ and LGPLv2+
 Group: System Environment/Base
 Summary: Helper to start an SM on IB interfaces using SRP

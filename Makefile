@@ -2,7 +2,7 @@
 # Makefile for use with Koji build system
 #
 
-NAME=ibsrp-sm-helper
+NAME=srp-sm-helper
 VERSION=0.1
 RELEASE=0
 NV=$(NAME)-$(VERSION)

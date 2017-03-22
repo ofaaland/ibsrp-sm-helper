@@ -9,9 +9,9 @@ Before=srpd.service
 Type=oneshot
 RemainAfterExit=true
 ExecStart=/sbin/modprobe ib_srp
-ExecStart=/usr/sbin/ibsrp-sm-helper start
+ExecStart=/usr/sbin/srp-sm-helper start
 
-ExecStop=/usr/sbin/ibsrp-sm-helper stop
+ExecStop=/usr/sbin/srp-sm-helper stop
 ExecStop=/sbin/modprobe -r ib_srp
 
 [Install]

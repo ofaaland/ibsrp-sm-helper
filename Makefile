@@ -12,11 +12,11 @@ WGET_URL=https://github.com/ofaaland/$(NAME)/archive/$(VERSION)-$(RELEASE).tar.g
 WGET=wget
 
 sources:
-	echo rm -f $(TARBALL)
-	echo $(WGET) -O $(TARBALL) $(WGET_URL)
+	rm -f $(TARBALL)
+	$(WGET) -O $(TARBALL) $(WGET_URL)
 
 clean:
-	echo rm -f $(TARBALL)
-	echo rm -rf $(NV)
+	rm -f $(TARBALL)
+	rm -rf $(NV)
 
 .PHONY: clean

@@ -6,7 +6,7 @@
 ##
 
 Name: srp-sm-helper
-Summary: IBSRP SM helper
+Summary: SRP SM helper
 Version: 0.1
 Release: 0%{?dist}
 BuildArch: noarch
@@ -22,9 +22,9 @@ Requires: systemd
 Requires: opensm
 
 %description
-IBSRP SM starts an instance of OpenSM on each port used for SRP, which is
-required for the ibsrp kernel driver to communicate with the attached storage
-controller.
+srp-sm-helper starts an instance of OpenSM on each IB port used for SRP, which
+is required for the ib_srp kernel driver to communicate with the attached
+storage controller.
 
 %prep
 %setup -n %{name}-%{version}-%{release}

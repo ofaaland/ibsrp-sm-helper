@@ -2,31 +2,33 @@
 
 # Description: Start/Stop the srp-sm-helper service
 #              srp-sm-helper service identifies point to point IB links which
-#              need to have an SM running on them to function.
+#              need to have an SM for use by SRP, and starts SMs on them.
 #
-#              In order for this to be useful, srp_daemon must be started on
-#              on these ports, and the ib_srp kernel module must be loaded.
-#              See the srptools rpm for more information.
+#              This is just one requirement for IB SRP to work.
+#              See the srptools package for more information.
+#
+#              I realize this is not the systemD Way.
 
 . /etc/rc.d/init.d/functions
 
 initsysconfdir=/etc/sysconfig
 
-log_cmd="logger -s -t ibsrp -p daemon.err"
+log_cmd="logger -s -t srp-sm-helper -p daemon.err"
 
 # Defaults for config paramenters
+LINK_SETTLE_TIMEOUT=0
 OPENSM_SETTLE_TIMEOUT=1
 
 # pick up our conf file if available
-if [ -f $initsysconfdir/ibsrp.conf ]; then
-   . $initsysconfdir/ibsrp.conf
+if [ -f $initsysconfdir/srp-sm-helper.conf ]; then
+   . $initsysconfdir/srp-sm-helper.conf
 else
    # warn if not...
-   $log_cmd "WARNING: $initsysconfdir/ibsrp.conf not found; using defaults"
+   $log_cmd "WARNING: $initsysconfdir/srp-sm-helper.conf not found; using defaults"
 fi
 
-LOG_DIR="/var/log/ibsrp"
-PID_DIR="/var/run/ibsrp"
+LOG_DIR="/var/log/srp-sm-helper"
+PID_FILE="/var/run/srp-sm-helper.pid"
 
 startOpenSMCA2CA()
 {
@@ -68,7 +70,7 @@ startOpenSMCA2CA()
                      echo_failure
                      exit 1
                 fi
-                echo $pid >> $PID_DIR/opensm.pid
+                echo $pid >> $PID_FILE
             fi
          fi
       done
@@ -77,11 +79,11 @@ startOpenSMCA2CA()
 
 kill_daemons()
 {
-    if [ -f $PID_DIR/opensm.pid ]; then
-        for pid in `cat $PID_DIR/opensm.pid`; do
+    if [ -f $PID_FILE ]; then
+        for pid in `cat $PID_FILE`; do
             kill $pid
         done
-        rm -rf $PID_DIR/opensm.pid
+        rm -rf $PID_FILE
     fi
 }
 
@@ -89,8 +91,8 @@ start()
 {
     $log_cmd "Starting..."
 
-    if [ -f $PID_DIR/opensm.pid ]; then
-	$log_cmd "ibsrp is already running..."
+    if [ -f $PID_FILE ]; then
+	$log_cmd "srp-sm-helper is already running..."
 	echo_failure
 	echo ""
 	exit 1

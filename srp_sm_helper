@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Description: Start/Stop the srp-sm-helper service
-#              srp-sm-helper service identifies point to point IB links which
+# Description: Start/Stop the srp_sm_helper service
+#              srp_sm_helper service identifies point to point IB links which
 #              need to have an SM for use by SRP, and starts SMs on them.
 #
 #              This is just one requirement for IB SRP to work.
@@ -13,22 +13,22 @@
 
 initsysconfdir=/etc/sysconfig
 
-log_cmd="logger -s -t srp-sm-helper -p daemon.err"
+log_cmd="logger -s -t srp_sm_helper -p daemon.err"
 
 # Defaults for config paramenters
 LINK_SETTLE_TIMEOUT=0
 OPENSM_SETTLE_TIMEOUT=1
 
 # pick up our conf file if available
-if [ -f $initsysconfdir/srp-sm-helper.conf ]; then
-   . $initsysconfdir/srp-sm-helper.conf
+if [ -f $initsysconfdir/srp_sm_helper.conf ]; then
+   . $initsysconfdir/srp_sm_helper.conf
 else
    # warn if not...
-   $log_cmd "WARNING: $initsysconfdir/srp-sm-helper.conf not found; using defaults"
+   $log_cmd "WARNING: $initsysconfdir/srp_sm_helper.conf not found; using defaults"
 fi
 
-LOG_DIR="/var/log/srp-sm-helper"
-PID_FILE="/var/run/srp-sm-helper.pid"
+LOG_DIR="/var/log/srp_sm_helper"
+PID_FILE="/var/run/srp_sm_helper.pid"
 
 startOpenSMCA2CA()
 {
@@ -92,7 +92,7 @@ start()
     $log_cmd "Starting..."
 
     if [ -f $PID_FILE ]; then
-	$log_cmd "srp-sm-helper is already running..."
+	$log_cmd "srp_sm_helper is already running..."
 	echo_failure
 	echo ""
 	exit 1

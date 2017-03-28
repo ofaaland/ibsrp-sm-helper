@@ -2,7 +2,7 @@
 # Makefile for use with Koji build system
 #
 
-NAME=srp-sm-helper
+NAME=srp_sm_helper
 VERSION=0.1
 RELEASE=0
 NV=$(NAME)-$(VERSION)

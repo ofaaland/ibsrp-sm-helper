@@ -1,5 +1,5 @@
 [Unit]
-Description=ibsrp-sm management
+Description=srp_sm_helper starts OpenSM where needed for IB SRP
 
 Requires=network-online.target
 After=network-online.target
@@ -8,11 +8,8 @@ Before=srpd.service
 [Service]
 Type=oneshot
 RemainAfterExit=true
-ExecStart=/sbin/modprobe ib_srp
-ExecStart=/usr/sbin/srp-sm-helper start
-
-ExecStop=/usr/sbin/srp-sm-helper stop
-ExecStop=/sbin/modprobe -r ib_srp
+ExecStart=/usr/sbin/srp_sm_helper start
+ExecStop=/usr/sbin/srp_sm_helper stop
 
 [Install]
 WantedBy=multi-user.target

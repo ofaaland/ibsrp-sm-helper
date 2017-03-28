@@ -5,7 +5,7 @@
 ##  of the GNU General Public License v.2.
 ##
 
-Name: srp-sm-helper
+Name: srp_sm_helper
 Summary: SRP SM helper
 Version: 0.1
 Release: 0%{?dist}
@@ -13,7 +13,7 @@ BuildArch: noarch
 License: GPLv2+ and LGPLv2+
 Group: System Environment/Base
 Summary: Helper to start an SM on IB interfaces using SRP
-URL: https://github.com/ofaaland/srp-sm-helper
+URL: https://github.com/ofaaland/srp_sm_helper
 Packager: Olaf Faaland <faaland1@llnl.gov>
 Source: %{name}-%{version}-%{release}.tgz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
@@ -22,7 +22,7 @@ Requires: systemd
 Requires: opensm
 
 %description
-srp-sm-helper starts an instance of OpenSM on each IB port used for SRP, which
+srp_sm_helper starts an instance of OpenSM on each IB port used for SRP, which
 is required for the ib_srp kernel driver to communicate with the attached
 storage controller.
 
@@ -34,34 +34,34 @@ rm -rf %{buildroot}
 install -d %{buildroot}/%{_sbindir}/
 install -d %{buildroot}/%{_mandir}/man8/
 install -d %{buildroot}/%{_unitdir}/
-install -m 755 srp-sm-helper         %{buildroot}/%{_sbindir}/
-install -m 644 srp-sm-helper.8.gz    %{buildroot}/%{_mandir}/man8/
-install -m 644 srp-sm-helper.service %{buildroot}/%{_unitdir}/
+install -m 755 srp_sm_helper         %{buildroot}/%{_sbindir}/
+install -m 644 srp_sm_helper.8.gz    %{buildroot}/%{_mandir}/man8/
+install -m 644 srp_sm_helper.service %{buildroot}/%{_unitdir}/
 
 %clean
 rm -rf %{buildroot}
 
 %post
-/bin/systemctl enable srp-sm-helper > /dev/null 2>&1 ||:
+/bin/systemctl enable srp_sm_helper > /dev/null 2>&1 ||:
 
 %preun
 if [ "$1" = 0 ]; then
-  systemctl stop srp-sm-helper >/dev/null 2>&1 || :
-  systemctl disable srp-sm-helper > /dev/null 2>&1 || :
+  systemctl stop srp_sm_helper >/dev/null 2>&1 || :
+  systemctl disable srp_sm_helper > /dev/null 2>&1 || :
 fi
 
 %postun
 if [ "$1" -ge 1 ]; then
-  systemctl try-restart srp-sm-helper >/dev/null 2>&1 || :
+  systemctl try-restart srp_sm_helper >/dev/null 2>&1 || :
 fi
 
 %files
 %defattr(-,root,root,-)
-%{_sbindir}/srp-sm-helper
-%{_mandir}/man8/srp-sm-helper.8.gz
-%{_unitdir}/srp-sm-helper.service
+%{_sbindir}/srp_sm_helper
+%{_mandir}/man8/srp_sm_helper.8.gz
+%{_unitdir}/srp_sm_helper.service
 
 %changelog
 * Thu Mar 16 2017 Olaf Faaland <faaland1@llnl.gov> - 0.1-0ch6
-- srp-sm-helper initial version
+- srp_sm_helper initial version
 - adapted from pragmatic-infiniband-utilities written by Ira Weiny

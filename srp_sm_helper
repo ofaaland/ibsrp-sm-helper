@@ -22,9 +22,6 @@ OPENSM_SETTLE_TIMEOUT=1
 # pick up our conf file if available
 if [ -f $initsysconfdir/srp_sm_helper.conf ]; then
    . $initsysconfdir/srp_sm_helper.conf
-else
-   # warn if not...
-   $log_cmd "WARNING: $initsysconfdir/srp_sm_helper.conf not found; using defaults"
 fi
 
 LOG_DIR="/var/log/srp_sm_helper"
@@ -45,7 +42,8 @@ startOpenSMCA2CA()
             smpquery -C $ch_adaptor -P $port -D nodeinfo 0,$port 2> /dev/null | grep NodeType | grep "Channel Adapter" > /dev/null
             ca=`echo $?`
             if [ "$ca" == "1" ]; then
-                $log_cmd "Port $ch_adaptor:$port is not connected to a Channel Adaptor...  Skipping"
+                # Don't print this if we're just doing a query
+                [ -n $_query ] || $log_cmd "Port $ch_adaptor:$port is not connected to a Channel Adaptor...  Skipping"
                 continue
             fi
 
@@ -54,11 +52,15 @@ startOpenSMCA2CA()
             sm=`echo $?`
             if [ "$sm" == "0" ]; then
                 # if the other end provides an SM we don't need to bother
-                $log_cmd "Port $ch_adaptor:$port is connected to a Channel Adaptor which is SM capable...  Skipping OpenSM start"
+                [ -n $_query ] || $log_cmd "Port $ch_adaptor:$port is connected to a Channel Adaptor which is SM capable...  Skipping OpenSM start"
                 continue
             fi
 
             port_guid=`smpquery -C $ch_adaptor -P $port -D nodeinfo 0 | grep PortGuid | sed -e "s/^PortGuid:\.*\(.*\)/\1/"`
+            if [[ -n $_query ]]; then
+                echo "$ch_adaptor:$port"
+                continue
+            fi
             if [ "$port_guid" != "" ] ; then
                 $log_cmd "Starting OpenSM on port $ch_adaptor:$port (guid $port_guid)"
                 opensm -g $port_guid -s 300 -f $LOG_DIR/opensm-$port.log 2>&1 > $LOG_DIR/opensm-$port.log &
@@ -89,13 +91,17 @@ kill_daemons()
 
 start()
 {
+    create_dirs
     $log_cmd "Starting..."
 
-    if [ -f $PID_FILE ]; then
-	$log_cmd "srp_sm_helper is already running..."
-	echo_failure
-	echo ""
-	exit 1
+    if [ -z $_query ]; then
+        # This restriction is only necessary when we are starting SMs
+        if [ -f $PID_FILE ]; then
+            $log_cmd "srp_sm_helper is already running..."
+            echo_failure
+            echo ""
+            exit 1
+        fi
     fi
 
 #---------------------------------------------------------------
@@ -113,19 +119,32 @@ start()
 
 stop()
 {
+    create_dirs
     $log_cmd "Stopping..."
     kill_daemons
     echo_success
 }
 
-if [ ! -d $PID_DIR ]; then
-    mkdir -p $PID_DIR
-fi
+query()
+{
+    _query=1
+#---------------------------------------------------------------
+# Return the HCAs and ports on which to run SRP daemons
+#---------------------------------------------------------------
+    startOpenSMCA2CA
+}
 
-if [ ! -d $LOG_DIR ]; then
-    mkdir -p $LOG_DIR
-fi
- 
+create_dirs()
+{
+    if [ ! -d $PID_DIR ]; then
+        mkdir -p $PID_DIR
+    fi
+
+    if [ ! -d $LOG_DIR ]; then
+        mkdir -p $LOG_DIR
+    fi
+}
+
 case "$1" in
     start)
       start ;;
@@ -134,10 +153,12 @@ case "$1" in
     restart)
       stop
       start ;;
+    query)
+      query ;;
     status)
       status ;;
     *)
-      echo "Usage $0 (start|stop|restart|status) "
+      echo "Usage $0 (start|stop|restart|query|status) "
       exit 1
 esac
 
